@@ -12,9 +12,10 @@ function getCoordinate {
     param (
         [ValidatePattern("^[a-zA-Z]$")][string]
         $Letter,
-        $Table = $Table
+        [array]$Table = $Table
     )
     # Get Coordinate of start
+    ### RFI: Where-Object is inefficient (even by powershell standards)
     $row = ($table | Where-Object {$_ -like "*$Letter*"})
     if (!$row){
         Write-Error "$letter not found in table"
@@ -30,9 +31,9 @@ function getCoordinate {
 # Function to resolve coordinates to a letter
 function getLetter {
     param (
-        $Y,
-        $X,
-        $Table = $Table
+        [int]$Y,
+        [int]$X,
+        [array]$Table = $Table
     )
     # uncomment for tshooting
     #write-host "Trying X: $X and Y: $Y"
@@ -45,7 +46,7 @@ function validMoveEnumerator {
     param (
         [ValidatePattern("^[a-zA-Z]$")][string]
         $Letter,
-        $Table = $Table
+        [array]$Table = $Table
     )
     $maxy = $table.count -1
     $maxx = $table[0].count -1
@@ -62,7 +63,7 @@ function validMoveEnumerator {
     foreach ($move in $knightmoves){
         $movey = $move.split(',')[0]
         $movex = $move.split(',')[1]
-
+        ### RFI: could make a coordinate class and do it "right"
         $newy = $coordinate.y + $movey
         $newx = $coordinate.x + $movex
 
@@ -87,13 +88,15 @@ function SovleMatrix {
         [int]$MaxMoves = 8,
         [int]$MaxVowels = 2,
         $NoTriples = @('a','e','i','o','u','y'),
-        $Table = $Table
+        [array]$Table = $Table,
+        [switch]$ShowValues
     )
     $levels = @()
     $move = 1
     Do {
 
         #first loop
+        ### RFI: I'm sure there's logic to not have separate loops but quick and dirty will have to do for now.
         if ($move -eq 1){
             $valids = validMoveEnumerator -Letter $Letter -Table $Table
             foreach ($valid in $valids){
@@ -117,16 +120,26 @@ function SovleMatrix {
     foreach ($level in $levels){
         $vcount = 0
         foreach ($l in $level.ToCharArray()){
+            ### RFI: Regex match would be faster, but need to learn black magic first.
             if ($notriples -contains $l){
                 $vcount ++
             }
         }
-        if ($vcount -lt 3){
+        if ($vcount -le $MaxVowels){
             $finallevels += $level
         }
     }
-    $finallevels.count
+    if ($ShowValues){
+        $finallevels
+    }
+    else {
+        $finallevels.count
+    }
+    
 }
 
 
-Measure-Command -Expression { SovleMatrix -Letter a -MaxMoves 8 | Out-Default}
+# Performance Test
+# Measure-Command -Expression { SovleMatrix -Letter a -MaxMoves 8 | Out-Default}
+
+SovleMatrix -Letter b -MaxMoves 8
