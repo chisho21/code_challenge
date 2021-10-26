@@ -7,7 +7,7 @@ $table =  @(
     ('u','v','0','0','y')
 )
 
-
+# Function to resolve a letter to coordinates
 function getCoordinate {
     param (
         [ValidatePattern("^[a-zA-Z]$")][string]
@@ -27,7 +27,7 @@ function getCoordinate {
     @{y = $rownum; x = $colnum}
    
 }
-
+# Function to resolve coordinates to a letter
 function getLetter {
     param (
         $Y,
@@ -40,7 +40,7 @@ function getLetter {
     
 }
 
-## Move validator
+## function to determine valid knight moves on the board
 function validMoveEnumerator {
     param (
         [ValidatePattern("^[a-zA-Z]$")][string]
@@ -71,17 +71,13 @@ function validMoveEnumerator {
             if ($let -notlike "0"){
                 $validmoves += $let
             }
-
-
         }
         else {
             Write-Verbose "Move [] $move ] is off the board"
         }
 
     }
-
-    return $validmoves
-
+    $validmoves
 }
 
 function SovleMatrix {
@@ -116,7 +112,7 @@ function SovleMatrix {
     $move ++
     }until ($move -gt $MaxMoves)
     $levels = $levels | Where-Object {$_.length -eq $maxmoves + 1} | Select-Object -Unique
-    ## Do the Doulbes check
+    ## Do the Vowel check
     $finallevels = @()
     foreach ($level in $levels){
         $vcount = 0
