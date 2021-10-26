@@ -142,4 +142,4 @@ function SovleMatrix {
 # Performance Test
 # Measure-Command -Expression { SovleMatrix -Letter a -MaxMoves 8 | Out-Default}
 
-SovleMatrix -Letter b -MaxMoves 8
+SovleMatrix -Letter a -MaxMoves 8
